@@ -1,0 +1,1706 @@
+openapi: 3.0.1
+info:
+  title: api
+  version: ''
+paths:
+  /annotations:
+    get:
+      description: |-
+        Get a page of annotations data for a given project.
+        This endpoint works like `/tasks`, but you must provide
+        `page` and `size` parameters. Up to `size` records
+        will be returned, starting from `page` * `size`.
+        user relates to user.full_name.
+      operationId: AnnotationsService.getAll
+      tags:
+        - Annotation
+      parameters:
+        - name: project_id
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: complete
+          in: query
+          required: false
+          schema:
+            type: boolean
+        - name: flagged
+          in: query
+          required: false
+          schema:
+            type: boolean
+        - name: reviewed
+          in: query
+          required: false
+          schema:
+            type: boolean
+        - name: user
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: keywords
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: task_id
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: ''
+      summary: Get Annotations
+      security: &ref_0
+        - BearerAuth: []
+    post:
+      description: Create an annotation
+      operationId: AnnotationsService.create
+      tags:
+        - Annotation
+      parameters: []
+      responses:
+        '204':
+          description: ''
+      summary: Create Annotation
+      security: *ref_0
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                task_id:
+                  type: integer
+                external_id:
+                  type: string
+                label_id:
+                  type: string
+                start:
+                  type: integer
+                end:
+                  type: integer
+                text:
+                  type: string
+                strength:
+                  type: number
+                  format: double
+              required:
+                - task_id
+  /annotations/{annotation_id}:
+    put:
+      description: |-
+        Create or update an annotation.
+        This endpoint is only used for single-label classification.
+      operationId: AnnotationsService.upsert
+      tags:
+        - Annotation
+      parameters:
+        - name: annotation_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: ''
+      summary: Upsert Annotation
+      security: *ref_0
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                task_id:
+                  type: integer
+                label_id:
+                  type: string
+                start:
+                  type: integer
+                end:
+                  type: integer
+                text:
+                  type: string
+                strength:
+                  type: number
+                  format: double
+              required:
+                - task_id
+    delete:
+      description: Delete a given annotation
+      operationId: AnnotationsService.delete
+      tags:
+        - Annotation
+      parameters:
+        - name: annotation_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: ''
+      summary: Delete Annotation
+      security: *ref_0
+    patch:
+      description: Update a given annotation.
+      operationId: AnnotationsService.update
+      tags:
+        - Annotation
+      parameters:
+        - name: annotation_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Annotation'
+      summary: Update Annotation
+      security: *ref_0
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reviewed:
+                  type: boolean
+                start:
+                  type: integer
+                end:
+                  type: integer
+                label_id:
+                  type: string
+                strength:
+                  type: number
+                  format: double
+                text:
+                  type: string
+  /datasets:
+    get:
+      description: >-
+        Get dataset details and associated field meta-data for any data-sets
+        associated to your user.
+      operationId: DatasetsService.getAll
+      tags:
+        - Dataset
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Dataset'
+      summary: Get Datasets
+      security: *ref_0
+    post:
+      description: >-
+        Upload a dataset that you can use in your Humanloop projects to train
+        models.
+      operationId: DatasetsService.create
+      tags:
+        - Dataset
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateDatasetResponse'
+      summary: Create Dataset
+      security: *ref_0
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                data:
+                  type: array
+                  items: {}
+                fields:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/CreateFieldRequest'
+                description:
+                  type: string
+              required:
+                - name
+                - data
+                - fields
+  /datasets/{id}:
+    get:
+      description: >-
+        Get dataset details and associated field meta-data for a specific
+        data-set associated to your user.
+      operationId: DatasetsService.get
+      tags:
+        - Dataset
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: num_records
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dataset'
+      summary: Get Dataset
+      security: *ref_0
+    put:
+      description: Update an existing dataset by adding additional data points.
+      operationId: DatasetsService.update
+      tags:
+        - Dataset
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateDatasetResponse'
+      summary: Update Dataset
+      security: *ref_0
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items: {}
+              required:
+                - data
+    delete:
+      description: Delete your dataset if it is no longer needed.
+      operationId: DatasetsService.delete
+      tags:
+        - Dataset
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: ''
+      summary: Delete Dataset
+      security: *ref_0
+  /datasets/{id}/metadata:
+    put:
+      description: Update the details of your dataset such as its name and description.
+      operationId: DatasetsService.updateDetails
+      tags:
+        - Dataset
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dataset'
+      summary: Update Dataset Details
+      security: *ref_0
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+  /projects/{project_id}/data-snapshots:
+    get:
+      operationId: DataSnapshotService.getAll
+      tags:
+        - DataSnapshot
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DataSnapshot'
+      summary: Get Project Data Snapshots
+      security: *ref_0
+    post:
+      operationId: DataSnapshotService.create
+      tags:
+        - DataSnapshot
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: metadata_search
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: start_date
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: end_date
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '204':
+          description: ''
+      summary: Create Data Snapshot
+      security: *ref_0
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+              required:
+                - name
+  /projects/{project_id}/data-snapshots/{data_snapshot_id}:
+    patch:
+      operationId: DataSnapshotService.update
+      tags:
+        - DataSnapshot
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: data_snapshot_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataSnapshot'
+      summary: Update Data Snapshot
+      security: *ref_0
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+  /outputs/{id}/labels:
+    get:
+      description: Get all labels for an existing project output definition
+      operationId: LabelsService.getAll
+      tags:
+        - Label
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Label'
+      summary: Get Labels
+      security: *ref_0
+    put:
+      description: Update the data on an array of labels based on id
+      operationId: LabelsService.updateMultiple
+      tags:
+        - Label
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Label'
+      summary: Update Labels
+      security: *ref_0
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/UpdateLabelRequest'
+    post:
+      description: Add a label or list of labels to an existing project's output definition
+      operationId: LabelsService.add
+      tags:
+        - Label
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Label'
+      summary: Add Labels
+      security: *ref_0
+    delete:
+      operationId: LabelsService.deleteMultiple
+      tags:
+        - Label
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Label'
+      summary: Delete Labels
+      security: *ref_0
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/UpdateLabelRequest'
+  /outputs/{id}/labels/{label_id}:
+    put:
+      description: Update any of the data for an existing label with label_id
+      operationId: LabelsService.update
+      tags:
+        - Label
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: label_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Label'
+      summary: Update Label
+      security: *ref_0
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateLabelRequest'
+    delete:
+      operationId: LabelsService.delete
+      tags:
+        - Label
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: label_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Label'
+      summary: Delete Label
+      security: *ref_0
+  /projects/{project_id}/metrics/logs:
+    get:
+      operationId: MetricsService.getSampleLogs
+      tags:
+        - Metrics
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {}
+      summary: Get Sample Logs
+      security: *ref_0
+  /projects/{project_id}/metrics/{metric_id}/run:
+    post:
+      description: Calculate metrics across all data in project.
+      operationId: MetricsService.runMetricCalculations
+      tags:
+        - Metrics
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: metric_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: ''
+      summary: Run Metric Calculations
+      security: *ref_0
+  /projects/{project_id}/model-config-metrics:
+    get:
+      operationId: MetricsService.getMetricsForModelConfigs
+      tags:
+        - Metrics
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ModelConfigMetrics'
+      summary: Get Metrics For Model Configs
+      security: *ref_0
+  /projects/{project_id}/fine-tune:
+    post:
+      description: >-
+        Trigger the fine-tuning process for a specific base model and data
+        snapshot.
+      operationId: ModelsService.fineTune
+      tags:
+        - Model
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FineTunedModelResponse'
+      summary: Fine Tune
+      security: *ref_0
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                data_snapshot:
+                  type: string
+                config:
+                  $ref: '#/components/schemas/FineTuneConfig'
+                  description: >-
+                    Configuration and hyper-parameters for the fine-tuning
+                    process
+                provider_api_keys:
+                  $ref: '#/components/schemas/ProviderApiKeys'
+                  description: >-
+                    API keys required by each provider to make API calls. These
+                    API keys are not stored by Humanloop.
+              required:
+                - name
+                - data_snapshot
+                - config
+                - provider_api_keys
+  /projects/{project_id}/models/fine-tuned:
+    get:
+      description: Get a list of all fine-tuned models associated to a given project.
+      operationId: ModelsService.getFineTunedModels
+      tags:
+        - Model
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FineTunedModelResponse'
+      summary: Get Fine Tuned Models
+      security: *ref_0
+  /projects/{project_id}/models/fine-tuned/update:
+    post:
+      description: |-
+        Updates your fine-tuned models.
+        Uses the specified provider API keys for provider-specific details.
+      operationId: ModelsService.updateMultiple
+      tags:
+        - Model
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateFineTunedModelsResponse'
+      summary: Update Fine Tuned Models
+      security: *ref_0
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                provider_api_keys:
+                  type: object
+                  additionalProperties:
+                    type: string
+              required:
+                - provider_api_keys
+  /projects/{project_id}/models/fine-tuned/{id}:
+    patch:
+      description: Modifies user-specified attributes of the specified fine-tuned models.
+      operationId: ModelsService.update
+      tags:
+        - Model
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateFineTunedModelResponse'
+      summary: Update Fine Tuned Model
+      security: *ref_0
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                provider_api_keys:
+                  type: object
+                  additionalProperties:
+                    type: string
+              required:
+                - provider_api_keys
+  /projects/{project_id}/model-configs:
+    get:
+      description: Get an array of model_configs associated to your project
+      operationId: ModelConfigurationService.getAll
+      tags:
+        - ModelConfiguration
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProjectModelConfig'
+      summary: Get Project Model Configs
+      security: *ref_0
+  /projects/{project_id}/model-configs/{model_config_id}:
+    delete:
+      description: Delete a model configuration from your project.
+      operationId: ModelConfigurationService.delete
+      tags:
+        - ModelConfiguration
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: model_config_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: ''
+      summary: Delete Project Model Config
+      security: *ref_0
+    patch:
+      description: Update a model configuration within your project
+      operationId: ModelConfigurationService.update
+      tags:
+        - ModelConfiguration
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: model_config_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectModelConfig'
+      summary: Update Project Model Config
+      security: *ref_0
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                display_name:
+                  type: string
+                description:
+                  type: string
+  logs:
+    get:
+      description: >-
+        Retrieve paginated logs from the server. Sorting and filtering are
+        supported through query params. See docstring of
+        get_sorted_filtered_project_data_from_query_params for more details.
+      operationId: MonitoringService.getLogs
+      tags:
+        - Monitoring
+      parameters:
+        - name: project_id
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: metadata_search
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: start_date
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: end_date
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LogsPage'
+      summary: Get Logs
+      security: *ref_0
+    delete:
+      operationId: MonitoringService.deleteLogs
+      tags:
+        - Monitoring
+      parameters: []
+      responses:
+        '204':
+          description: ''
+      summary: Delete Logs
+      security: *ref_0
+  logs/export-raw:
+    post:
+      description: >-
+        Retrieve filtered logs in a normalized CSV. Sorting and filtering are
+        supported through query params. See docstring of
+        get_sorted_filtered_project_data_from_query_params for more details.
+      operationId: MonitoringService.exportRawLogs
+      tags:
+        - Monitoring
+      parameters:
+        - name: project_id
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: metadata_search
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: start_date
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: end_date
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '204':
+          description: ''
+      summary: Export Raw
+      security: *ref_0
+  logs/export-fine-tune:
+    post:
+      description: >-
+        Retrieve filtered logs in the format for fine-tuning. Sorting and
+        filtering are supported through query params. See docstring of
+        get_sorted_filtered_project_data_from_query_params for more details.
+      operationId: MonitoringService.exportFineTuneLogs
+      tags:
+        - Monitoring
+      parameters:
+        - name: project_id
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: metadata_search
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: start_date
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: end_date
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '204':
+          description: ''
+      summary: Export Fine Tune
+      security: *ref_0
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FineTuneFormatting'
+  projects/{project_id}/feedback/{feedback_type}/{feedback_value}:
+    delete:
+      operationId: MonitoringService.deleteFeedbackLabel
+      tags:
+        - Monitoring
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: feedback_type
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: feedback_value
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: ''
+      summary: Delete Feedback Label
+      security: *ref_0
+components:
+  schemas:
+    Annotation:
+      type: object
+      description: An instance of a user-provided annotation
+      properties:
+        id:
+          type: string
+        external_id:
+          type: string
+        confidence:
+          type: number
+          format: double
+        user:
+          $ref: '#/components/schemas/AnnotationUserResponse'
+        task:
+          $ref: '#/components/schemas/AnnotationTaskResponse'
+        start:
+          type: integer
+        end:
+          type: integer
+        text:
+          type: string
+        strength:
+          type: number
+          format: double
+        label_id:
+          type: string
+        label:
+          $ref: '#/components/schemas/Label'
+        result_type:
+          type: string
+        reviewed:
+          type: boolean
+      required:
+        - id
+        - external_id
+        - user
+        - task
+        - label_id
+        - label
+        - result_type
+    AnnotationUserResponse:
+      type: object
+      description: An instance of the user who made an annotation
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        full_name:
+          type: string
+        email_address:
+          type: string
+      required:
+        - id
+        - username
+        - email_address
+    AnnotationTaskResponse:
+      type: object
+      description: An instance of a task the annotation was created for
+      properties:
+        id:
+          type: integer
+        url:
+          type: string
+      required:
+        - id
+    DataType:
+      type: string
+      enum:
+        - text
+        - categorical
+        - multi_categorical
+        - quantitative
+        - character_offsets
+        - url
+        - ordinal_regression
+        - file_pdf
+    Dataset:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        count:
+          type: integer
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Data'
+        description:
+          type: string
+        public:
+          type: boolean
+        fields:
+          type: array
+          items:
+            $ref: '#/components/schemas/Field'
+        field_names:
+          type: array
+          items:
+            type: string
+        created_at:
+          type: string
+        updated_at:
+          type: string
+        status_counts:
+          type: object
+          additionalProperties:
+            type: integer
+        active:
+          type: boolean
+      required:
+        - id
+        - name
+        - count
+        - active
+    Field:
+      type: object
+      properties:
+        id:
+          type: integer
+        dataset_id:
+          type: integer
+        name:
+          type: string
+        display_name:
+          type: string
+        data_type:
+          $ref: '#/components/schemas/DataType'
+        required:
+          type: boolean
+        count:
+          type: integer
+        null_count:
+          type: integer
+        value_counts:
+          type: object
+          additionalProperties:
+            type: integer
+        latest_counts_increase:
+          type: object
+          additionalProperties:
+            type: integer
+        distinct_values:
+          type: array
+          items:
+            type: string
+        created_at:
+          type: string
+        updated_at:
+          type: string
+      required:
+        - id
+        - dataset_id
+        - name
+        - display_name
+        - data_type
+        - required
+    Data:
+      type: object
+      properties:
+        id:
+          type: integer
+        dataset_id:
+          type: integer
+        source:
+          type: string
+        created_at:
+          type: string
+        updated_at:
+          type: string
+        processing_status:
+          $ref: '#/components/schemas/DataProcessingStatus'
+      required:
+        - id
+        - source
+        - processing_status
+    DataProcessingStatus:
+      type: string
+      enum:
+        - processing
+        - completed
+        - failed
+    CreateFieldRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        data_type:
+          $ref: '#/components/schemas/DataType'
+        display_name:
+          type: string
+        required:
+          type: boolean
+        distinct_values:
+          type: array
+          items:
+            type: string
+        default: {}
+        meta:
+          type: object
+          additionalProperties: {}
+      required:
+        - name
+        - data_type
+        - display_name
+        - required
+        - default
+        - meta
+    UpdateDatasetResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        attempted:
+          type: integer
+        succeeded:
+          type: integer
+        processing:
+          type: integer
+        msg:
+          type: string
+        fields:
+          type: array
+          items:
+            $ref: '#/components/schemas/Field'
+      required:
+        - id
+        - attempted
+        - succeeded
+        - processing
+        - msg
+        - fields
+    DataSnapshot:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        filter_params:
+          type: object
+          additionalProperties: {}
+        count:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - description
+        - filter_params
+        - count
+        - created_at
+        - updated_at
+    Label:
+      type: object
+      description: Data returned in the payload when adding, editing or deleting a label(s)
+      properties:
+        name:
+          type: string
+        id:
+          type: string
+        display_name:
+          type: string
+        description:
+          type: string
+        count:
+          type: integer
+        object:
+          type: string
+        output_id:
+          type: integer
+        output:
+          $ref: '#/components/schemas/Output'
+        created_at:
+          type: string
+        updated_at:
+          type: string
+      required:
+        - name
+        - id
+        - output_id
+    Output:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        display_name:
+          type: string
+        description:
+          type: string
+        task_type:
+          $ref: '#/components/schemas/TaskType'
+        data_key:
+          type: string
+        data_type:
+          $ref: '#/components/schemas/DataType'
+        project_id:
+          type: integer
+        object:
+          type: string
+      required:
+        - name
+        - task_type
+    TaskType:
+      type: string
+      enum:
+        - classification
+        - multi_label_classification
+        - sequence_tagging
+        - ordinal_regression
+        - generation
+      description: What ML tasks we support for our outputs
+    UpdateLabelRequest:
+      type: object
+      description: >-
+        The definition of a Label used as part of an output specification for a
+        project and/or learner. The name will be a unique key (within the scope
+        of a single output) that will be referenced by annotations and
+        predictions
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        display_name:
+          type: string
+        description:
+          type: string
+    ModelConfigMetrics:
+      type: object
+      properties:
+        model_config_id:
+          type: string
+        metric_id:
+          type: string
+        average:
+          type: number
+          format: double
+      required:
+        - model_config_id
+        - metric_id
+        - average
+    UpdateFineTunedModelsResponse:
+      type: object
+      properties:
+        updated:
+          type: array
+          items:
+            $ref: '#/components/schemas/UpdateFineTunedModelResponse'
+        failed:
+          type: array
+          items:
+            $ref: '#/components/schemas/UpdateFineTunedModelResponse'
+      required:
+        - updated
+        - failed
+    UpdateFineTunedModelResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        error:
+          type: string
+      required:
+        - id
+    FineTunedModelResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        status:
+          type: string
+        model_name:
+          type: string
+        data_snapshot:
+          $ref: '#/components/schemas/DataSnapshot'
+          description: Details of the corresponding immutable dataset used for fine-tuning.
+        provider_id:
+          type: string
+        config:
+          $ref: '#/components/schemas/FineTuneConfig'
+          description: Configuration details for the fine-tuned model.
+        created_at:
+          type: string
+        updated_at:
+          type: string
+      required:
+        - id
+        - name
+        - status
+        - data_snapshot
+        - config
+        - created_at
+        - updated_at
+    FineTuneConfig:
+      type: object
+      properties:
+        provider:
+          $ref: '#/components/schemas/ModelProvider'
+          description: >-
+            The company who is hosting the target model.This is used only if an
+            existing experiment_id or model_config_id are not provided.
+        base_model:
+          type: string
+        validation_split:
+          type: number
+          format: double
+        use_corrections:
+          type: boolean
+        prompt_template:
+          type: string
+        generation_template:
+          type: string
+      required:
+        - base_model
+    ProviderApiKeys:
+      type: object
+      properties:
+        openai:
+          type: string
+        ai21:
+          type: string
+        mock:
+          type: string
+        anthropic:
+          type: string
+    ModelProvider:
+      type: string
+      enum:
+        - openai
+        - ai21
+        - mock
+        - anthropic
+      description: Supported model providers.
+    ProjectModelConfig:
+      type: object
+      properties:
+        id:
+          type: string
+        project_id:
+          type: string
+        display_name:
+          type: string
+        model_name:
+          type: string
+        prompt_template:
+          type: string
+        provider:
+          $ref: '#/components/schemas/ModelProvider'
+          description: The organization hosting the target model.
+        endpoint:
+          $ref: '#/components/schemas/ModelEndpoint'
+          description: Which of the providers' endpoints to use. E.g. Complete, Edit.
+        created_at:
+          type: string
+        updated_at:
+          type: string
+        last_used:
+          type: string
+        experiment_id:
+          type: string
+      required:
+        - id
+        - display_name
+        - model_name
+        - provider
+        - endpoint
+        - created_at
+        - updated_at
+        - last_used
+    ModelEndpoint:
+      type: string
+      enum:
+        - complete
+        - edit
+      description: Supported model provider endpoints.
+    LogsPage:
+      type: object
+      properties:
+        records:
+          type: array
+          items:
+            $ref: '#/components/schemas/Log'
+        page:
+          type: integer
+        size:
+          type: integer
+        total:
+          type: integer
+      required:
+        - records
+        - page
+        - size
+        - total
+    Log:
+      type: object
+      properties:
+        id:
+          type: string
+        source:
+          type: string
+        model_config:
+          $ref: '#/components/schemas/ProjectModelConfig'
+        output:
+          type: string
+        feedback:
+          type: array
+          items:
+            $ref: '#/components/schemas/Feedback'
+        metric_values:
+          type: array
+          items:
+            $ref: '#/components/schemas/MetricValues'
+        data_snapshots:
+          type: array
+          items:
+            $ref: '#/components/schemas/LogDataSnapshot'
+        provider_latency:
+          type: number
+          format: double
+        created_at:
+          type: string
+        updated_at:
+          type: string
+      required:
+        - id
+        - output
+        - created_at
+        - updated_at
+    Feedback:
+      type: object
+      properties:
+        value:
+          type: string
+        data_id:
+          type: string
+        user:
+          type: string
+        created_at:
+          type: string
+        id:
+          type: string
+      required:
+        - value
+        - id
+    MetricValues:
+      type: object
+      properties:
+        metric_id:
+          type: string
+        metric_name:
+          type: string
+        metric_value:
+          type: number
+          format: double
+      required:
+        - metric_id
+        - metric_name
+        - metric_value
+    LogDataSnapshot:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        count:
+          type: integer
+      required:
+        - id
+        - name
+        - count
+    FineTuneFormatting:
+      type: object
+      properties:
+        separator:
+          type: string
+        completion_initial_whitespace:
+          type: string
+        stop_sequence:
+          type: string
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
