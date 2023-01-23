@@ -65,7 +65,7 @@ paths:
           description: ''
       summary: Get Annotations
       security: &ref_0
-        - BearerAuth: []
+        - ApiKeyAuth: []
     post:
       description: Create an annotation
       operationId: AnnotationsService.create
@@ -1701,6 +1701,10 @@ components:
         stop_sequence:
           type: string
   securitySchemes:
-    BearerAuth:
-      type: http
-      scheme: bearer
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-KEY
+servers:
+  - url: https://api.humanloop.com/v2
+    description: Production
